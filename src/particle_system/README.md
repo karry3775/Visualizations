@@ -5,4 +5,4 @@ SDL Graphics library
 
 ## Fire Explosion demo (temporay image for now)
 
-![Fire explosion](gifs/explosion.gif)
+![Fire explosion](gifs/blurred_explosion.gif)

@@ -14,7 +14,7 @@ Particle::Particle() {
     orig_y = y;
 
     // double speed_factor = 0.1;
-    speed = 0.0001 * (((1.0* rand()) / RAND_MAX ) - 1.0); //speed_factor * x;
+    speed = 0.00005* (((1.0* rand()) / RAND_MAX ) - 1.0); //speed_factor * x;
     direction = (2 * M_PI * rand()) / RAND_MAX;
 
 }

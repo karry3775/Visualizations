@@ -16,6 +16,7 @@ private:
     SDL_Texture* texture_;
 
     Uint32* buffer_;
+    Uint32* blur_buffer_;
 
 public: 
     FireExplosionParticleSystem();
@@ -27,6 +28,7 @@ public:
     void drawBreathingWindowAllColors();
     void setPixelValue(int posx, int posy, Uint8 red, Uint8 green, Uint8 blue);
     void run();
+    void boxBlur();
     bool breakLoopOnQuit(SDL_Event&);
     void demoBasic();
 

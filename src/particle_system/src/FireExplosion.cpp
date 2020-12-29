@@ -5,7 +5,7 @@
 namespace particlesystem {
 
 FireExplosionParticleSystem::FireExplosionParticleSystem() : 
-    window_(nullptr), renderer_(nullptr), texture_(nullptr), buffer_(nullptr) {}
+    window_(nullptr), renderer_(nullptr), texture_(nullptr), buffer_(nullptr), blur_buffer_(nullptr) {}
 
 void FireExplosionParticleSystem::initialize(){
     
@@ -55,13 +55,17 @@ void FireExplosionParticleSystem::initialize(){
     
     // initialize our buffer
     buffer_ = new Uint32[SCREEN_WIDTH * SCREEN_HEIGHT];
+    blur_buffer_ = new Uint32[SCREEN_WIDTH * SCREEN_HEIGHT];
     memset(buffer_, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
+    memset(blur_buffer_, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
     
 }
 
 void FireExplosionParticleSystem::destroy() {
     // free the buffer
     if(buffer_ != nullptr)  delete[] buffer_;
+    // free the blur buffer
+    if(blur_buffer_ != nullptr) delete[] blur_buffer_;
     // destroy texture if exists
     if(texture_ != nullptr)    SDL_DestroyTexture(texture_);
     // destroy window if exists
@@ -96,6 +100,7 @@ void FireExplosionParticleSystem::updateParticles() {
 }
 
 void FireExplosionParticleSystem::clearBuffer() {
+    memset(buffer_, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
     memset(buffer_, 0, SCREEN_WIDTH * SCREEN_HEIGHT * sizeof(Uint32));
 }
 
@@ -144,8 +149,6 @@ void FireExplosionParticleSystem::run() {
         
         for (int i = 0; i < Swarm::NPARTICLES; ++i) {
 
-            std::cout << "interval is: " << interval << std::endl;
-
             double speedx = particles[i].speed * cos(particles[i].direction) *interval; // mutliplying by elapsed time to ensure constant speed on different systems
             double speedy = particles[i].speed * sin(particles[i].direction) *interval;
 
@@ -165,15 +168,61 @@ void FireExplosionParticleSystem::run() {
             particles[i].updateParticlePosition(new_x, new_y); 
             // // we need to set a pixel at this location
             // setPixelValue(particles[i].x * min_dim + SCREEN_WIDTH / 2, particles[i].y * min_dim + SCREEN_HEIGHT / 2, int(abs(red_factor) * 255), int(abs(green_factor) * 255), int(abs(blue_factor) * 255));
-            setPixelValue(particles[i].x * min_dim + SCREEN_WIDTH / 2, particles[i].y * min_dim + SCREEN_HEIGHT / 2, 255, 255, 255);
+            setPixelValue(particles[i].x * min_dim + SCREEN_WIDTH / 2, particles[i].y * min_dim + SCREEN_HEIGHT / 2, 0, 255, 0);
         }
         // Update particles
         updateParticles();
         // Clear Buffer
-        clearBuffer();
+        // clearBuffer();
+        // boxBlur
+        boxBlur();
         // Check for messages/events
         if(breakLoopOnQuit(event)) break;
     }
+}
+
+void FireExplosionParticleSystem::boxBlur() {
+
+    // Swap the buffers so that we do not mess up the original buffer
+    Uint32* temp_buffer = buffer_;
+    buffer_ = blur_buffer_;
+    blur_buffer_ = temp_buffer;
+
+    for(int x = 0; x < SCREEN_WIDTH; ++x) {
+        for(int y = 0; y < SCREEN_HEIGHT; ++y) {
+            
+            int red_sum = 0;
+            int green_sum = 0;
+            int blue_sum = 0;
+
+            // Now we need to blur with a kernel of 3x3
+            for (int row = -1; row <= 1; ++row) {
+                for(int col = -1; col <= 1; ++col) {
+                    int current_x = x + col;
+                    int current_y = y + row;
+
+                    if(current_x >= 0 && current_x < SCREEN_WIDTH && current_y >= 0 && current_y < SCREEN_HEIGHT) {
+                        Uint32 color = blur_buffer_[current_y * SCREEN_WIDTH + current_x];
+                        red_sum += color >> 24;
+                        green_sum += color >> 16;
+                        blue_sum += color >> 8;
+                    }
+
+                }
+            }
+
+            Uint8 red = red_sum / 9;
+            Uint8 green = green_sum / 9;
+            Uint8 blue = blue_sum / 9;
+
+            // then we need to set the pixel value
+            setPixelValue(x, y, red, green, blue);
+        }
+    }
+
+
+
+
 }
 
 bool FireExplosionParticleSystem::breakLoopOnQuit(SDL_Event& event) {
