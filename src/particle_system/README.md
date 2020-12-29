@@ -5,4 +5,4 @@ SDL Graphics library
 
 ## Fire Explosion demo (temporay image for now)
 
-![Fire explosion](gifs/particle_system_demo_1.gif)
+![Fire explosion](gifs/explosion.gif)

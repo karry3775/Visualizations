@@ -116,33 +116,45 @@ void FireExplosionParticleSystem::drawBreathingWindowAllColors() {
 }
 
 void FireExplosionParticleSystem::run() {
-    srand(time(NULL));
+    // srand(time(NULL));
 
     Swarm swarm;
     Particle* particles = swarm.getParticles();    
-    double speed = 0.001;
     SDL_Event event;
 
-    int time_elapsed    = SDL_GetTicks();
-    double green_factor = sin(time_elapsed * 0.001);
-    double red_factor   = cos(time_elapsed * 0.001);
-    double blue_factor  = sin(time_elapsed * 0.001 + M_PI/5);
+    int min_dim = std::min(SCREEN_WIDTH, SCREEN_HEIGHT);  
 
     while (true){
         
         // Draw particles
         // we are following the image cordinate system
         // drawBreathingWindowAllColors();
+        int time_elapsed    = SDL_GetTicks();
+        double green_factor = sin(time_elapsed * 0.001);
+        double red_factor   = cos(time_elapsed * 0.001);
+        double blue_factor  = sin(time_elapsed * 0.001 + M_PI/5);
         
         for (int i = 0; i < Swarm::NPARTICLES; ++i) {
-            double speedx = particles[i].x * 0.01;
-            double speedy = particles[i].y * 0.01; 
-            double new_x = (tan(particles[i].x + speedx)*SCREEN_WIDTH < SCREEN_WIDTH) ? tan(particles[i].x + speedx) : (rand() / (RAND_MAX + 1.0)); 
-            double new_y = (tan(particles[i].y + speedy)*SCREEN_HEIGHT < SCREEN_HEIGHT) ? tan(particles[i].y + speedy) : (rand() / (RAND_MAX + 1.0));
+            double speedx = particles[i].speed * cos(particles[i].direction);
+            double speedy = particles[i].speed * sin(particles[i].direction);
+
+            if((particles[i].x + speedx)*min_dim + SCREEN_WIDTH / 2  >= SCREEN_WIDTH || (particles[i].x + speedx)*min_dim + SCREEN_WIDTH / 2   <= 0) {
+                // particles[i].x = 0;
+                // particles[i].y = 0;
+            }
+            if((particles[i].y + speedy)*min_dim + SCREEN_HEIGHT / 2 >= SCREEN_HEIGHT || (particles[i].y + speedy)*min_dim + SCREEN_HEIGHT / 2 <= 0)
+            {
+                // particles[i].x = 0;
+                // particles[i].y = 0;
+            }
+
+            double new_x = particles[i].x + speedx;
+            double new_y = particles[i].y + speedy;
+
             particles[i].updateParticlePosition(new_x, new_y); 
-            // we need to set a pixel at this location
-            // setPixelValue(particles[i].x * SCREEN_WIDTH, particles[i].y * SCREEN_HEIGHT, int(abs(red_factor) * 255), int(abs(green_factor) * 255), int(abs(blue_factor) * 255));
-            setPixelValue(particles[i].x * SCREEN_WIDTH + SCREEN_WIDTH  / 2, particles[i].y * SCREEN_HEIGHT + SCREEN_HEIGHT / 2, 255, 255, 255);
+            // // we need to set a pixel at this location
+            // setPixelValue(particles[i].x * min_dim + SCREEN_WIDTH / 2, particles[i].y * min_dim + SCREEN_HEIGHT / 2, int(abs(red_factor) * 255), int(abs(green_factor) * 255), int(abs(blue_factor) * 255));
+            setPixelValue(particles[i].x * min_dim + SCREEN_WIDTH / 2, particles[i].y * min_dim + SCREEN_HEIGHT / 2, 255, 255, 255);
         }
         // Update particles
         updateParticles();
