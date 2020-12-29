@@ -124,6 +124,8 @@ void FireExplosionParticleSystem::run() {
 
     int min_dim = std::min(SCREEN_WIDTH, SCREEN_HEIGHT);  
 
+    int last_time = -1.0;
+
     while (true){
         
         // Draw particles
@@ -133,10 +135,19 @@ void FireExplosionParticleSystem::run() {
         double green_factor = sin(time_elapsed * 0.001);
         double red_factor   = cos(time_elapsed * 0.001);
         double blue_factor  = sin(time_elapsed * 0.001 + M_PI/5);
+
+        if (last_time == -1) last_time = time_elapsed;
+
+        int interval = time_elapsed - last_time;
+
+        last_time = time_elapsed;
         
         for (int i = 0; i < Swarm::NPARTICLES; ++i) {
-            double speedx = particles[i].speed * cos(particles[i].direction);
-            double speedy = particles[i].speed * sin(particles[i].direction);
+
+            std::cout << "interval is: " << interval << std::endl;
+
+            double speedx = particles[i].speed * cos(particles[i].direction) *interval; // mutliplying by elapsed time to ensure constant speed on different systems
+            double speedy = particles[i].speed * sin(particles[i].direction) *interval;
 
             if((particles[i].x + speedx)*min_dim + SCREEN_WIDTH / 2  >= SCREEN_WIDTH || (particles[i].x + speedx)*min_dim + SCREEN_WIDTH / 2   <= 0) {
                 // particles[i].x = 0;
