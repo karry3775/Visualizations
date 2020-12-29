@@ -1,6 +1,0 @@
-particle_system
-/home/kartik/Documents/visualization/devel/.private/particle_system/cmake.lock /home/kartik/Documents/visualization/devel/./cmake.lock
-/home/kartik/Documents/visualization/devel/.private/particle_system/lib/pkgconfig/particle_system.pc /home/kartik/Documents/visualization/devel/lib/pkgconfig/particle_system.pc
-/home/kartik/Documents/visualization/devel/.private/particle_system/lib/particle_system/particle_system_node /home/kartik/Documents/visualization/devel/lib/particle_system/particle_system_node
-/home/kartik/Documents/visualization/devel/.private/particle_system/share/particle_system/cmake/particle_systemConfig.cmake /home/kartik/Documents/visualization/devel/share/particle_system/cmake/particle_systemConfig.cmake
-/home/kartik/Documents/visualization/devel/.private/particle_system/share/particle_system/cmake/particle_systemConfig-version.cmake /home/kartik/Documents/visualization/devel/share/particle_system/cmake/particle_systemConfig-version.cmake
