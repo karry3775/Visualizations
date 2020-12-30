@@ -129,7 +129,7 @@ void FireExplosionParticleSystem::run() {
 
     int min_dim = std::min(SCREEN_WIDTH, SCREEN_HEIGHT);  
 
-    int last_time = -1.0;
+    int last_time = -1.0;   
 
     while (true){
         
@@ -137,9 +137,9 @@ void FireExplosionParticleSystem::run() {
         // we are following the image cordinate system
         // drawBreathingWindowAllColors();
         int time_elapsed    = SDL_GetTicks();
-        double green_factor = sin(time_elapsed * 0.001);
-        double red_factor   = cos(time_elapsed * 0.001);
-        double blue_factor  = sin(time_elapsed * 0.001 + M_PI/5);
+        double green_factor = sin(time_elapsed * 0.0001);
+        double red_factor   = sin(time_elapsed * 0.0001 + M_PI/4);
+        double blue_factor  = sin(time_elapsed * 0.0001 + M_PI/8);
 
         if (last_time == -1) last_time = time_elapsed;
 
@@ -151,24 +151,30 @@ void FireExplosionParticleSystem::run() {
 
             double speedx = particles[i].speed * cos(particles[i].direction) *interval; // mutliplying by elapsed time to ensure constant speed on different systems
             double speedy = particles[i].speed * sin(particles[i].direction) *interval;
+            double new_direction =  particles[i].direction + interval * 0.0004;
 
             if((particles[i].x + speedx)*min_dim + SCREEN_WIDTH / 2  >= SCREEN_WIDTH || (particles[i].x + speedx)*min_dim + SCREEN_WIDTH / 2   <= 0) {
-                // particles[i].x = 0;
-                // particles[i].y = 0;
+                particles[i].init();
+                speedx = particles[i].speed * cos(particles[i].direction) * interval;
+                speedy = particles[i].speed * sin(particles[i].direction) * interval;
+                new_direction = particles[i].direction;
             }
             if((particles[i].y + speedy)*min_dim + SCREEN_HEIGHT / 2 >= SCREEN_HEIGHT || (particles[i].y + speedy)*min_dim + SCREEN_HEIGHT / 2 <= 0)
             {
-                // particles[i].x = 0;
-                // particles[i].y = 0;
+                particles[i].init();
+                speedx = particles[i].speed * cos(particles[i].direction) * interval;
+                speedy = particles[i].speed * sin(particles[i].direction) * interval;
+                new_direction = particles[i].direction;
             }
 
             double new_x = particles[i].x + speedx;
             double new_y = particles[i].y + speedy;
 
             particles[i].updateParticlePosition(new_x, new_y); 
+            particles[i].direction = new_direction;
             // // we need to set a pixel at this location
-            // setPixelValue(particles[i].x * min_dim + SCREEN_WIDTH / 2, particles[i].y * min_dim + SCREEN_HEIGHT / 2, int(abs(red_factor) * 255), int(abs(green_factor) * 255), int(abs(blue_factor) * 255));
-            setPixelValue(particles[i].x * min_dim + SCREEN_WIDTH / 2, particles[i].y * min_dim + SCREEN_HEIGHT / 2, 0, 255, 0);
+            setPixelValue(particles[i].x * min_dim + SCREEN_WIDTH / 2, particles[i].y * min_dim + SCREEN_HEIGHT / 2, int(abs(red_factor) * 255), int(abs(green_factor) * 255), int(abs(blue_factor) * 255));
+            // setPixelValue(particles[i].x * min_dim + SCREEN_WIDTH / 2, particles[i].y * min_dim + SCREEN_HEIGHT / 2, 0, 255, 0);
         }
         // Update particles
         updateParticles();
@@ -203,9 +209,14 @@ void FireExplosionParticleSystem::boxBlur() {
 
                     if(current_x >= 0 && current_x < SCREEN_WIDTH && current_y >= 0 && current_y < SCREEN_HEIGHT) {
                         Uint32 color = blur_buffer_[current_y * SCREEN_WIDTH + current_x];
-                        red_sum += color >> 24;
-                        green_sum += color >> 16;
-                        blue_sum += color >> 8;
+                        
+                        Uint8 red = color >> 24;
+                        Uint8 green = color >> 16;
+                        Uint8 blue = color >> 8;
+
+                        red_sum += red;
+                        green_sum += green;
+                        blue_sum += blue;
                     }
 
                 }
